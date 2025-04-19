@@ -42,7 +42,7 @@ A Java-based calculator application with a GUI that provides basic arithmetic op
    - Convert numbers between bases.
    - View results.
 3. Press **Enter** to evaluate expressions.
-4. Use dedicated buttons for base conversion.
+4. Use dedicated buttons for base conversion (once a button is used, use the tab button accordingly to refocus on the label).
 5. Press **C** to clear the input.
 6. Press **Backspace** to delete the last character.
 
