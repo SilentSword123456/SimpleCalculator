@@ -62,10 +62,10 @@ Current version: **2.0**
 ## Notes
 
 - The application requires **Windows OS** for full functionality due to Event Viewer integration.
-- Maximum equation length: **100 characters**.
+- Maximum equation length: **500 characters**.
 - Supported characters: digits (`0-9`) and basic arithmetic operators (`+`, `-`, `*`, `/`).
 - **Floating-point numbers are not supported.**
-- **Negative numbers are not supported.**
+- Negative numbers are supported.
 - Maximum value: fits within an `int` (up to **9 digits**).
 
 ## Source Code
