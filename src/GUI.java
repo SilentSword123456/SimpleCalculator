@@ -14,41 +14,37 @@ import java.awt.event.WindowEvent;
  */
 public class GUI {
 
-    /**
-     * Represents the state of the last input received by the GUI.
-     * The value of this variable can indicate the following:
-     * - -1: The initial state before any input has been received.
-     * -  0: Indicates that the last input was an operation (e.g., '+', '-', '*', '/').
-     * -  1: Indicates that the last input was a numeric digit (e.g., '0' to '9').
-     *
-     * This variable is used internally by the GUI class to determine the context
-     * of the last user interaction and handle subsequent inputs appropriately.
-     */
-    private byte lastInput = -1;
-    // lastInput will be -1 for initialisation,0 if last input was an operation and 1 if last input was a digit
 
     /**
-     * Launches the graphical user interface (GUI) for a calculator application,
-     * providing the user with an interactive window to input values, convert
-     * numbers between bases, and observe changes.
+     * Represents the most recent input received in the GUI application.
      *
-     * This method performs the following operations:
-     * 1. Initializes the main GUI window.
-     * 2. Adds a label for user input display and interaction.
-     * 3. Adds buttons for base conversion functionality:
-     *    - Converts numbers to base 2.
-     *    - Converts numbers to base 10.
-     * 4. Sets up key listeners and button actions:
-     *    - Captures user input via key presses.
-     *    - Handles button clicks for base conversions.
-     * 5. Logs significant actions:
-     *    - Logs GUI-related events such as window launch and closure.
-     *    - Logs user operations such as base conversion or errors during input processing.
-     * 6. Handles errors gracefully using dialogs and logs to ensure feedback
-     *    in case of invalid inputs.
+     * This variable holds the byte representation of the last user input,
+     * which can be used for tracking state changes or validating input sequences
+     * within the graphical user interface of the calculator.
      *
-     * The window is displayed with predefined dimensions and non-resizable components,
-     * accommodating user interaction and input processing functionality.
+     * Default value is -1, indicating no valid input has been registered yet.
+     */
+    private byte lastInput = -1;
+    // lastInput will be -1 for initialisation,0 if last input was an operation and -1 if last input was a digit
+
+
+    /**
+     * Launches the graphical user interface (GUI) for user interaction and input processing.
+     * This method creates and configures a window containing components like labels and buttons
+     * for input display and conversion functionalities. It also sets up event listeners for
+     * user input handling, button actions, and window closing events.
+     *
+     * The GUI includes:
+     * - A label where users can input and view mathematical expressions or numbers.
+     * - Buttons for converting the entered number to base 2 and base 10.
+     * - Listeners for keyboard input, button clicks, and window events to process user interactions.
+     *
+     * Core functionality:
+     * - Captures and updates user input in real-time.
+     * - Provides base conversion for numeric input while validating the entered values.
+     * - Logs significant events, such as invalid conversions or window closures, for debugging or informational purposes.
+     *
+     * Note: This method is designed to handle numeric inputs, and improper inputs (e.g., symbols) are flagged with error messages.
      */
     void Launch(){
 
@@ -108,6 +104,8 @@ public class GUI {
             //trying to convert the string in the label/text to a number, but it might fail if the user has simbols (ex.: "5+8" or "3*")
             try {
                 int equation = Integer.parseInt(text.toString());
+                if(equation < 0)
+                    equation *= -1;
                 text.setLength(0);
                 text.append(Evaluator.convertToBaseN(equation, 10, 2));
                 label.setText(text.toString());
@@ -122,6 +120,8 @@ public class GUI {
             //trying to convert the string in the label/text to a number, but it might fail if the user has simbols (ex.: "5+8" or "3*")
             try {
                 int equation = Integer.parseInt(text.toString());
+                if(equation < 0)
+                    equation *= -1;
                 text.setLength(0);
                 text.append(Evaluator.convertToBaseN(equation, 2, 10));
                 label.setText(text.toString());
@@ -145,16 +145,16 @@ public class GUI {
         frame.setVisible(true);
     }
 
+
     /**
-     * Updates the input field in the calculator interface based on the user input.
-     * This method processes the key events, modifies the displayed label and
-     * the internal data structure (StringBuilder text), ensures valid input is maintained,
-     * and handles specific key actions such as evaluation, clearing, and deletion.
+     * Updates the input displayed on a JLabel based on the provided character or key code.
+     * This method handles various user input scenarios for constructing or modifying
+     * a mathematical expression, evaluating the expression, or resetting the input.
      *
-     * @param keyChar the character of the key pressed by the user
-     * @param keyCode the key code of the key pressed by the user
-     * @param label the JLabel component that displays the current input or result
-     * @param text the StringBuilder representing the current input expression
+     * @param keyChar the character input from the user, such as numbers or symbols
+     * @param keyCode the code of the key pressed, such as enter, backspace, or clear
+     * @param label the JLabel that displays the current input or result
+     * @param text the StringBuilder object holding the current mathematical expression
      */
     private void updateInput(char keyChar, int keyCode, JLabel label,StringBuilder text) {
         //check if the key pressed is allowed
@@ -163,27 +163,26 @@ public class GUI {
             if(keyChar >= 48 && keyChar <= 57) {
                 //add the number to the input
                 text.append(keyChar - '1' + 1);
-                //update the lastInput to be 1
-                lastInput = 1;
+                //update the lastInput to be -1
+                lastInput = -1;
             }
             //now, if the char is allowed and is not a number, witch is the only way we gat with the execution to this point,
             // then the char must be a symbol, but if the lastInput is 0,
             // then it means that the last char was also a symbol, so we do not allow it in the StringBuilder text
-            else if(keyChar == '/' && lastInput != 0) {
+            // except if the symbol is '-' so that we can type numbers with negative signs (ex.: -234)
+            else if(keyChar == '/' && !(lastInput >= 0)) {
                 text.append('/');
                 lastInput = 0;
             }
-            else if(keyChar == '*' && lastInput != 0) {
+            else if(keyChar == '*' && !(lastInput >= 0)) {
                 text.append('*');
                 lastInput = 0;
-            }
-            else if(keyChar == '-' && lastInput != 0) {
-                text.append('-');
-                lastInput= 0;
-            }
-            else if(lastInput != 0) {
+            } else if(keyChar == '+' && !(lastInput >= 0)) {
                 text.append('+');
                 lastInput = 0;
+            } else if(keyChar == '-' && lastInput != 2) {
+                text.append('-');
+                lastInput= 2;
             }
 
             //set the label to the updated text
@@ -215,7 +214,7 @@ public class GUI {
 
             //make sure that the lastInput is set correctly so no wrong char can be inputted (ex.: 4+5 (press backspace) -> 4+ (press '+') -> 4++)
             if(!text.isEmpty() && text.charAt(text.length() - 1) >= 48 && text.charAt(text.length() - 1) <= 57)
-                lastInput = 1;
+                lastInput = -1;
             else if(!text.isEmpty())
                 lastInput = 0;
         }

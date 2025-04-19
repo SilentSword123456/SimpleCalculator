@@ -30,7 +30,7 @@ public class Main {
      * This variable ensures that user inputs do not exceed a predefined character limit,
      * maintaining operational consistency and preventing overly complex calculations.
      */
-    public static int maxEcuationLenght = 100;
+    public static int maxEquationLength = 500;
 
     /**
      * The main method serves as the entry point of the SimpleCalculator application.

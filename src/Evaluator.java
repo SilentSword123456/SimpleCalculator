@@ -19,7 +19,7 @@ public class Evaluator {
      * to operations extracted during the processing of a given mathematical equation.
      */
     //creating 2 FILO vectors
-    private static int numbers[] = new int[Main.maxEcuationLenght+1];
+    private static int numbers[] = new int[Main.maxEquationLength+1];
     /**
      * Array to store mathematical operations extracted from a given equation.
      * Each element represents a valid arithmetic operator (+, -, *, /) in the order
@@ -29,7 +29,7 @@ public class Evaluator {
      * This field is used in conjunction with other components (such as `numbers` in
      * the Evaluator class) for parsing and evaluating mathematical expressions.
      */
-    private static char operations[] = new char[Main.maxEcuationLenght+1];
+    private static char operations[] = new char[Main.maxEquationLength+1];
 
     /**
      * Represents a static integer used as a reference or count for the left-side numbers
@@ -172,14 +172,14 @@ public class Evaluator {
         return numberInBaseN.toString();
     }
 
+
     /**
-     * Parses a mathematical equation represented as a string, extracting numbers and operations,
-     * and stores them in separate predefined arrays (`numbers` and `operations`).
-     * The method ensures proper handling of consecutive numbers and valid operations, maintaining the
-     * order of their appearance.
+     * Parses a mathematical equation given as a string to extract numbers and operations.
+     * Constructs internal representations of numbers and operations using stacks.
+     * Handles operator precedence implicitly and performs basic numeric validations.
      *
-     * @param equation the mathematical equation as a string to be formatted. It should consist of
-     *                 numbers (0-9) and valid arithmetic operators (+, -, *, /).
+     * @param equation the mathematical string equation to be parsed.
+     *                 It should consist of numbers and arithmetic operators (+, -, *, /) only.
      */
     static private void formater(String equation) {
 
@@ -193,7 +193,7 @@ public class Evaluator {
             currentChar = equation.charAt(k);
 
             //checking if the current char in the equation is a number
-            if (currentChar >= 48 && currentChar <= 57 && lastInput != 1) {
+            if (currentChar >= 48 && currentChar <= 57 && lastInput != 0) {
                 //transforming the current char into an int corresponding to its actual value in numbers
                 int number = currentChar - '1' + 1; //ex.: if the current chat is '5' witch is equal to 35, then if we subtract '1' witch is 31 we get 4, then we add 1 we get 5:) Works for 0 too
 
@@ -204,25 +204,26 @@ public class Evaluator {
                     number=number*10+equation.charAt(i) - '1' + 1;
 
                 //we add the number to the FILO vector
+                if(lastInput == 2)
+                    number *= -1;
                 numbers[stN++] = number;
-                //we set the lastInput to 1 since we just processed a number
-                lastInput = 1;
+                //we've set the lastInput to 0 since we just processed a number
+                lastInput = 0;
                 //we set k to the number we stopped at
                 k=i-1;
-            } else if (currentChar == '/' && lastInput != 0) { //we know that the current char is one allowed but is not an number,
-                                                               // then we check for the possible symbols and add them to the operations FILO vector,
-                                                               // and then we set the lastInput to 0 so that we know that the last input was a symbol
-                operations[stO++] = '/';
-                lastInput = 0;
-            } else if (currentChar == '*' && lastInput != 0) {
+            } else if (currentChar == '/') { //we know that the current char is one allowed but is not an number,
+                operations[stO++] = '/';                       // then we check for the possible symbols and add them to the operations FILO vector,
+                lastInput = 1;                                 // and then we set the lastInput to 1 so that we know that the last input was a symbol
+            } else if (currentChar == '*') {
                 operations[stO++] = '*';
-                lastInput = 0;
-            } else if (currentChar == '-' && lastInput != 0) {
-                operations[stO++] = '-';
-                lastInput = 0;
-            } else if (lastInput != 0) {
+                lastInput = 1;
+            } else if (currentChar == '-') {
+                if(k >= 1 && equation.charAt(k - 1) >= 48 && equation.charAt(k - 1) <= 57)
+                    operations[stO++] = '+';
+                lastInput = 2;
+            } else if (currentChar == '+') {
                 operations[stO++] = '+';
-                lastInput = 0;
+                lastInput = 1;
             }
         }
 
